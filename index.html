@@ -1,1 +1,343 @@
-<!DOCTYPE html> <html lang="es"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Análisis Intersección Huaylas-Matellini</title> <script src="https://cdn.tailwindcss.com"></script> <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chosen Palette: Slate & Sky (Calm Neutrals) --> <!-- Application Structure Plan: Se optó por una estructura de navegación por pestañas (Resumen, Demanda, Diagnóstico, Problemas, Propuestas). Esta arquitectura de información es ideal para un informe técnico, ya que guía al usuario a través de un flujo lógico que imita el proceso de un estudio de ingeniería: comienza con un resumen ejecutivo (Resumen), presenta los datos de entrada (Demanda), analiza la situación actual (Diagnóstico y Problemas), y finalmente, expone las soluciones (Propuestas). Esta estructura es intuitiva para el público objetivo (académico/técnico) y facilita la exploración y comparación de datos. Las interacciones se centran en la selección de pestañas para cambiar el contenido y botones de filtro en "Propuestas" para comparar soluciones dinámicamente. --> <!-- Visualization & Content Choices: 1. Resumen - KPI Cards (HTML/Tailwind) -> Goal: Informar (vista rápida) -> Interaction: Ninguna -> Justification: Provee los hallazgos clave de inmediato. 2. Demanda - Stacked Bar Chart (Chart.js/Canvas) -> Goal: Comparar (flujos por acceso y giro) -> Interaction: Hover (tooltip) -> Justification: Muestra claramente la composición del volumen total por cada acceso. 3. Diagnóstico - Horizontal Bar Chart (Chart.js/Canvas) -> Goal: Organizar/Comparar (Grado de Saturación) -> Interaction: Hover (tooltip) -> Justification: Destaca los accesos críticos (v/c > 1.0) de forma visualmente impactante. 4. Problemas - Grid con Iconos (HTML/Tailwind + Unicode) -> Goal: Informar (cualitativo) -> Interaction: Ninguna -> Justification: Presenta los problemas cualitativos de forma escaneable y fácil de digerir. 5. Propuestas - Grouped Bar Chart (Chart.js/Canvas) -> Goal: Comparar (Efectividad de soluciones) -> Interaction: Hover (tooltip) -> Justification: Permite una comparación directa del rendimiento (Demora) entre el estado actual y las propuestas. 6. Propuestas - Botones de Filtro (HTML/JS) -> Goal: Interactuar (selección de propuesta) -> Interaction: Click -> Justification: Permite al usuario explorar los detalles de cada solución, actualizando el texto descriptivo dinámicamente. --> <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. --> <style> .chart-container { position: relative; width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; height: 400px; max-height: 400px; } @media (max-width: 640px) { .chart-container { height: 300px; } } .nav-button { @apply px-4 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-sky-100 hover:text-sky-700 transition-colors duration-200; } .nav-button.active { @apply bg-sky-600 text-white hover:bg-sky-700 hover:text-white; } .kpi-card { @apply bg-white p-6 rounded-lg shadow-md border border-slate-200; } .kpi-title { @apply text-sm font-medium text-slate-500 uppercase; } .kpi-value { @apply text-3xl font-bold text-sky-600 mt-1; } .kpi-context { @apply text-sm text-slate-400; } </style> </head> <body class="bg-slate-50 font-sans text-slate-800"> <header class="bg-white shadow-sm sticky top-0 z-50"> <nav class="container mx-auto px-4 sm:px-6 lg:px-8"> <div class="flex justify-between items-center h-16"> <div class="flex-shrink-0"> <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Análisis: Intersección Huaylas-Matellini</h1> </div> <div class="hidden sm:block"> <div id="nav-buttons" class="flex items-baseline space-x-1"> <button class="nav-button active" data-target="resumen">Resumen</button> <button class="nav-button" data-target="demanda">Demanda</button> <button class="nav-button" data-target="diagnostico">Diagnóstico</button> <button class="nav-button" data-target="problemas">Problemas</button> <button class="nav-button" data-target="propuestas">Propuestas</button> </div> </div> </div> <div class="sm:hidden" id="mobile-menu"> <div id="mobile-nav-buttons" class="flex flex-wrap justify-center px-2 pt-2 pb-3 space-x-1"> <button class="nav-button active" data-target="resumen">Resumen</button> <button class="nav-button" data-target="demanda">Demanda</button> <button class="nav-button" data-target="diagnostico">Diagnóstico</button> <button class="nav-button" data-target="problemas">Problemas</button> <button class="nav-button" data-target="propuestas">Propuestas</button> </div> </div> </nav> </header> <main class="container mx-auto p-4 sm:p-6 lg:p-8 mt-4"> <section id="resumen" class="content-section"> <h2 class="text-3xl font-bold text-slate-900 mb-4">Resumen Ejecutivo del Estudio</h2> <p class="text-base text-slate-600 mb-8 max-w-3xl"> Esta aplicación presenta un resumen interactivo de un estudio hipotético sobre la intersección de la Av. Prolongación Huaylas y la Av. Ariosto Matellini en Chorrillos. El análisis identifica la demanda vehicular, diagnostica el rendimiento operativo actual y los problemas clave. Finalmente, compara propuestas de mejora para aliviar la congestión y mejorar el Nivel de Servicio (LOS). Explore las pestañas para ver los datos detallados. </p> <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"> <div class="kpi-card"> <div class="kpi-title">VHMD Total</div> <div class="kpi-value">4,500</div> <div class="kpi-context">Vehículos/Hora (Hora Punta Mañana)</div> </div> <div class="kpi-card"> <div class="kpi-title">Nivel de Servicio (LOS)</div> <div class="kpi-value">E</div> <div class="kpi-context">Operación inestable, demoras altas</div> </div> <div class="kpi-card"> <div class="kpi-title">Demora Promedio</div> <div class="kpi-value">85.4 s</div> <div class="kpi-context">Por vehículo, situación actual</div> </div> </div> <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200"> <h3 class="text-xl font-semibold text-slate-900 mb-3">Hallazgos Clave y Recomendación</h3> <p class="text-slate-600 mb-4"> La intersección opera por encima de su capacidad, con un Nivel de Servicio "E" y demoras promedio de 85.4 segundos. Los giros a la izquierda desde Huaylas (N-S) y Matellini (E-W) son los movimientos más críticos, con grados de saturación superiores a 1.05. </p> <p class="text-slate-600 font-semibold"> Se recomienda la <span class="text-sky-600">Propuesta 2 (Rediseño Geométrico y Optimización Semafórica)</span>, que proyecta reducir la demora promedio a 35.1 segundos y alcanzar un Nivel de Servicio "C". </p> </div> </section> <section id="demanda" class="content-section hidden"> <h2 class="text-3xl font-bold text-slate-900 mb-4">Demanda Vehicular (Hora Punta)</h2> <p class="text-base text-slate-600 mb-8 max-w-3xl"> Los datos de aforo vehicular, recopilados durante la hora punta de la mañana (7:30 - 8:30 AM), son la base del análisis. El gráfico de barras apiladas muestra los volúmenes de vehículos por movimiento (giro a la izquierda, recto, giro a la derecha) para cada uno de los cuatro accesos principales a la intersección. Se observa que la Av. Huaylas (Norte-Sur y Sur-Norte) concentra la mayor parte del flujo. </p> <div class="chart-container"> <canvas id="demandaChart"></canvas> </div> </section> <section id="diagnostico" class="content-section hidden"> <h2 class="text-3xl font-bold text-slate-900 mb-4">Diagnóstico Operativo Actual</h2> <p class="text-base text-slate-600 mb-8 max-w-3xl"> El diagnóstico se basa en una microsimulación (usando software como VISSIM o Synchro) con los datos de demanda actuales y la configuración semafórica existente (Ciclo de 120s). El Nivel de Servicio (LOS) general es "E". El gráfico de barras horizontales muestra el Grado de Saturación (v/c) para los movimientos más críticos. Un valor superior a 1.0 indica que la demanda supera la capacidad, resultando en colas crecientes. </p> <div class="chart-container"> <canvas id="diagnosticoChart"></canvas> </div> </section> <section id="problemas" class="content-section hidden"> <h2 class="text-3xl font-bold text-slate-900 mb-4">Problemas Detectados</h2> <p class="text-base text-slate-600 mb-8 max-w-3xl"> Además de los indicadores operativos, la inspección de campo y el análisis de simulación revelaron varios problemas cualitativos que contribuyen a la congestión y reducen la seguridad en la intersección. </p> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200"> <span class="text-3xl" role="img" aria-label="congestion">🚗</span> <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Congestión Severa</h3> <p class="text-slate-600">Altos volúmenes en Huaylas y Matellini causan congestión generalizada durante las horas punta.</p> </div> <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200"> <span class="text-3xl" role="img" aria-label="colas">↔️</span> <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Formación de Colas</h3> <p class="text-slate-600">Colas de los giros a la izquierda bloquean los carriles de paso, afectando el flujo recto.</p> </div> <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200"> <span class="text-3xl" role="img" aria-label="semaforos">🚦</span> <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Tiempos de Ciclo</h3> <p class="text-slate-600">El ciclo actual de 120s y la distribución de verdes no están optimizados para la demanda actual.</p> </div> <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200"> <span class="text-3xl" role="img" aria-label="peatones">🚶</span> <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Conflictos Peatonales</h3> <p class="text-slate-600">Altos flujos peatonales y tiempos de cruce insuficientes generan riesgos y demoras.</p> </div> <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200"> <span class="text-3xl" role="img" aria-label="geometria">📐</span> <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Geometría Deficiente</h3> <p class="text-slate-600">Radios de giro inadecuados para vehículos pesados y falta de carriles exclusivos.</p> </div> <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200"> <span class="text-3xl" role="img" aria-label="buses">🚌</span> <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Transporte Público</h3> <p class="text-slate-600">Paraderos de autobús ubicados muy cerca de la intersección causan bloqueos.</p> </div> </div> </section> <section id="propuestas" class="content-section hidden"> <h2 class="text-3xl font-bold text-slate-900 mb-4">Propuestas de Mejora</h2> <p class="text-base text-slate-600 mb-6 max-w-3xl"> Se evaluaron dos escenarios de mejora. El gráfico compara la demora promedio por vehículo entre la situación actual y las dos propuestas. Seleccione una propuesta para ver sus detalles específicos y el Nivel de Servicio proyectado. </p> <div class="flex justify-center space-x-4 mb-8" id="propuesta-buttons"> <button class="propuesta-button active px-6 py-2 rounded-md font-medium bg-sky-600 text-white" data-target="prop1">Propuesta 1: Optimización Semafórica</button> <button class="propuesta-button px-6 py-2 rounded-md font-medium bg-white text-slate-700 border border-slate-300" data-target="prop2">Propuesta 2: Rediseño Geométrico</button> </div> <div class="chart-container mb-8"> <canvas id="propuestasChart"></canvas> </div> <div id="propuesta-details" class="bg-white p-6 rounded-lg shadow-md border border-slate-200 max-w-3xl mx-auto"> </div> </section> </main> <script> document.addEventListener('DOMContentLoaded', () => { const dataStore = { demanda: { labels: ['Huaylas (Norte)', 'Huaylas (Sur)', 'Matellini (Este)', 'Matellini (Oeste)'], datasets: [ { label: 'Giro Izquierda', data: [150, 180, 200, 150], backgroundColor: 'rgba(239, 68, 68, 0.7)', }, { label: 'Recto', data: [1200, 1300, 400, 350], backgroundColor: 'rgba(59, 130, 246, 0.7)', }, { label: 'Giro Derecha', data: [100, 120, 50, 100], backgroundColor: 'rgba(22, 163, 74, 0.7)', } ] }, diagnostico: { labels: ['Huaylas (N-S) Giro Izq.', 'Matellini (E-W) Giro Izq.', 'Huaylas (S-N) Recto', 'Matellini (W-E) Recto'], datasets: [ { label: 'Grado de Saturación (v/c)', data: [1.10, 1.05, 0.98, 0.95], backgroundColor: (context) => { const value = context.raw; return value >= 1.0 ? 'rgba(239, 68, 68, 0.7)' : 'rgba(245, 158, 11, 0.7)'; }, borderColor: (context) => { const value = context.raw; return value >= 1.0 ? 'rgba(239, 68, 68, 1)' : 'rgba(245, 158, 11, 1)'; }, borderWidth: 1 } ] }, propuestas: { labels: ['Demora Promedio (s)'], datasets: [ { label: 'Actual', data: [85.4], backgroundColor: 'rgba(239, 68, 68, 0.7)', }, { label: 'Propuesta 1', data: [50.2], backgroundColor: 'rgba(245, 158, 11, 0.7)', }, { label: 'Propuesta 2', data: [35.1], backgroundColor: 'rgba(22, 163, 74, 0.7)', } ] }, propuestaDetails: { prop1: { title: 'Propuesta 1: Optimización Semafórica', los: 'D', description: 'Esta propuesta se enfoca en el bajo costo, ajustando únicamente los tiempos del semáforo. Se optimiza el tiempo de ciclo a 140 segundos y se redistribuyen los tiempos de verde según la demanda, priorizando los accesos más saturados. No se realizan cambios físicos en la vía.', items: [ 'Nuevo Tiempo de Ciclo: 140 segundos.', 'Optimización de fases y tiempos de verde.', 'Implementación de planes horarios para hora punta y valle.', 'Demora Proyectada: 50.2 seg/veh.' ] }, prop2: { title: 'Propuesta 2: Rediseño Geométrico + Semafórica', los: 'C', description: 'Esta es la solución integral. Incluye la optimización semafórica de la Propuesta 1, pero añade modificaciones físicas a la intersección para aumentar la capacidad y la seguridad.', items: [ 'Creación de un carril de giro exclusivo (N-S) en Av. Huaylas.', 'Mejora en los radios de giro para vehículos pesados.', 'Reubicación de paraderos de transporte público fuera de la zona de influencia.', 'Mejora de la señalización y demarcación peatonal.', 'Demora Proyectada: 35.1 seg/veh.' ] } } }; const tooltipLabelWrapper = (tooltipItems) => { const label = tooltipItems[0].label || ''; const lines = []; const maxChars = 16; let currentLine = ''; label.split(' ').forEach((word, index) => { if (currentLine.length + word.length + 1 > maxChars) { lines.push(currentLine); currentLine = word; } else { currentLine += (index > 0 ? ' ' : '') + word; } }); lines.push(currentLine); return lines; }; const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', }, tooltip: { callbacks: { title: tooltipLabelWrapper, } } }, scales: { x: { ticks: { maxRotation: 0, minRotation: 0, autoSkip: false, callback: function(value, index, values) { const label = this.getLabelForValue(value) || ''; if (label.length > 15) { return label.split(' ').slice(0, 2).join(' ') + '...'; } return label; } } } } }; function renderDemandaChart() { const ctx = document.getElementById('demandaChart').getContext('2d'); new Chart(ctx, { type: 'bar', data: dataStore.demanda, options: { ...chartOptions, scales: { x: { stacked: true, ...chartOptions.scales.x }, y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Vehículos por Hora' } } } } }); } function renderDiagnosticoChart() { const ctx = document.getElementById('diagnosticoChart').getContext('2d'); new Chart(ctx, { type: 'bar', data: dataStore.diagnostico, options: { ...chartOptions, indexAxis: 'y', scales: { x: { beginAtZero: true, title: { display: true, text: 'Grado de Saturación (v/c)' } }, y: { ...chartOptions.scales.x } }, plugins: { ...chartOptions.plugins, legend: { display: false }, annotation: { annotations: { line1: { type: 'line', xMin: 1.0, xMax: 1.0, borderColor: 'rgb(239, 68, 68)', borderWidth: 2, borderDash: [6, 6], label: { content: 'Capacidad Límite (1.0)', enabled: true, position: 'end' } } } } } } }); } function renderPropuestasChart() { const ctx = document.getElementById('propuestasChart').getContext('2d'); new Chart(ctx, { type: 'bar', data: dataStore.propuestas, options: { ...chartOptions, scales: { y: { beginAtZero: true, title: { display: true, text: 'Demora Promedio (s)' } } } } }); } function updatePropuestaDetails(propId) { const details = dataStore.propuestaDetails[propId]; const container = document.getElementById('propuesta-details'); let itemsHtml = details.items.map(item => <li class="flex items-start"><span class="text-sky-600 mr-2 mt-1">✓</span>${item}</li>).join(''); container.innerHTML = <h3 class="text-2xl font-semibold text-slate-900 mb-3">${details.title}</h3> <div class="mb-4"> <span class="text-sm font-medium text-slate-500 uppercase">Nivel de Servicio (LOS) Proyectado:</span> <span class="text-2xl font-bold text-sky-600 ml-2">${details.los}</span> </div> <p class="text-slate-600 mb-4">${details.description}</p> <ul class="space-y-2 text-slate-600"> ${itemsHtml} </ul> ; } function setupNavigation() { const navButtons = document.querySelectorAll('.nav-button'); const contentSections = document.querySelectorAll('.content-section'); function switchTab(targetId) { contentSections.forEach(section => { section.classList.toggle('hidden', section.id !== targetId); }); navButtons.forEach(button => { button.classList.toggle('active', button.dataset.target === targetId); }); } document.getElementById('nav-buttons').addEventListener('click', (e) => { if (e.target.classList.contains('nav-button')) { switchTab(e.target.dataset.target); } }); document.getElementById('mobile-nav-buttons').addEventListener('click', (e) => { if (e.target.classList.contains('nav-button')) { switchTab(e.target.dataset.target); } }); } function setupPropuestaToggle() { const buttonsContainer = document.getElementById('propuesta-buttons'); const buttons = buttonsContainer.querySelectorAll('.propuesta-button'); buttonsContainer.addEventListener('click', (e) => { const button = e.target.closest('.propuesta-button'); if (button) { buttons.forEach(btn => { btn.classList.remove('active', 'bg-sky-600', 'text-white'); btn.classList.add('bg-white', 'text-slate-700', 'border', 'border-slate-300'); }); button.classList.add('active', 'bg-sky-600', 'text-white'); button.classList.remove('bg-white', 'text-slate-700', 'border', 'border-slate-300'); updatePropuestaDetails(button.dataset.target); } }); } renderDemandaChart(); renderDiagnosticoChart(); renderPropuestasChart(); setupNavigation(); setupPropuestaToggle(); updatePropuestaDetails('prop1'); }); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Intersección Huaylas-Matellini</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Estilos esenciales de estructura para los gráficos */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            height: 400px;
+        }
+        @media (max-width: 640px) {
+            .chart-container { height: 300px; }
+        }
+        /* Utilidad para ocultar secciones */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800">
+
+    <!-- ENCABEZADO Y NAVEGACIÓN -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center py-4 sm:h-16">
+                <div class="flex-shrink-0 mb-4 sm:mb-0">
+                    <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Análisis: Intersección Huaylas-Matellini</h1>
+                </div>
+                <!-- Botones de Navegación -->
+                <div id="nav-buttons" class="flex flex-wrap justify-center gap-2">
+                    <!-- Los estilos están directos aquí para asegurar visibilidad -->
+                    <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer bg-sky-600 text-white" data-target="resumen">Resumen</button>
+                    <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer text-slate-700 hover:bg-sky-100 hover:text-sky-700" data-target="demanda">Demanda</button>
+                    <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer text-slate-700 hover:bg-sky-100 hover:text-sky-700" data-target="diagnostico">Diagnóstico</button>
+                    <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer text-slate-700 hover:bg-sky-100 hover:text-sky-700" data-target="problemas">Problemas</button>
+                    <button class="nav-btn px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 cursor-pointer text-slate-700 hover:bg-sky-100 hover:text-sky-700" data-target="propuestas">Propuestas</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 sm:p-6 lg:p-8 mt-4">
+
+        <!-- SECCIÓN 1: RESUMEN -->
+        <section id="resumen" class="content-section">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Resumen Ejecutivo</h2>
+            <p class="text-base text-slate-600 mb-8 max-w-3xl">
+                Esta aplicación presenta un resumen interactivo del estudio técnico sobre la intersección de la Av. Prolongación Huaylas y la Av. Ariosto Matellini. El análisis identifica la demanda vehicular crítica, diagnostica fallas operativas y propone soluciones de ingeniería.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <!-- Tarjetas KPI -->
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                    <div class="text-sm font-medium text-slate-500 uppercase">VHMD Total</div>
+                    <div class="text-3xl font-bold text-sky-600 mt-1">4,500</div>
+                    <div class="text-sm text-slate-400">Vehículos/Hora (Punta Mañana)</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                    <div class="text-sm font-medium text-slate-500 uppercase">Nivel de Servicio (LOS)</div>
+                    <div class="text-3xl font-bold text-sky-600 mt-1">E</div>
+                    <div class="text-sm text-slate-400">Operación inestable</div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200">
+                    <div class="text-sm font-medium text-slate-500 uppercase">Demora Promedio</div>
+                    <div class="text-3xl font-bold text-sky-600 mt-1">85.4 s</div>
+                    <div class="text-sm text-slate-400">Por vehículo (Actual)</div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 border-l-4 border-l-sky-600">
+                <h3 class="text-xl font-semibold text-slate-900 mb-3">Hallazgos Clave y Recomendación</h3>
+                <p class="text-slate-600 mb-4">
+                    La intersección opera por encima de su capacidad. Los giros a la izquierda son los movimientos más críticos con saturación > 1.05.
+                </p>
+                <p class="text-slate-600 font-semibold">
+                    Se recomienda la <span class="text-sky-600">Propuesta 2 (Rediseño Geométrico)</span>, reduciendo la demora a 35.1 segundos (Nivel "C").
+                </p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 2: DEMANDA -->
+        <section id="demanda" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Demanda Vehicular (Hora Punta)</h2>
+            <p class="text-base text-slate-600 mb-8 max-w-3xl">
+                Volúmenes vehiculares por acceso (7:30 - 8:30 AM). La Av. Huaylas concentra la mayor carga vehicular del sistema.
+            </p>
+            <div class="chart-container">
+                <canvas id="demandaChart"></canvas>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 3: DIAGNÓSTICO -->
+        <section id="diagnostico" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Diagnóstico Operativo</h2>
+            <p class="text-base text-slate-600 mb-8 max-w-3xl">
+                Grado de Saturación (v/c). Barras que superan la línea roja (1.0) indican colapso del carril.
+            </p>
+            <div class="chart-container">
+                <canvas id="diagnosticoChart"></canvas>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 4: PROBLEMAS -->
+        <section id="problemas" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Problemas Detectados</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Tarjetas de Problemas -->
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+                    <span class="text-3xl">🚗</span>
+                    <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Congestión Severa</h3>
+                    <p class="text-slate-600">Volúmenes superan capacidad física de la vía.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+                    <span class="text-3xl"↔️</span>
+                    <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Colas de Giro</h3>
+                    <p class="text-slate-600">Giros a la izquierda bloquean carriles directos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+                    <span class="text-3xl">🚦</span>
+                    <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Semáforos</h3>
+                    <p class="text-slate-600">Ciclo de 120s ineficiente para la demanda actual.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+                    <span class="text-3xl">🚶</span>
+                    <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Conflictos Peatonales</h3>
+                    <p class="text-slate-600">Tiempos de cruce insuficientes.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+                    <span class="text-3xl">📐</span>
+                    <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Geometría</h3>
+                    <p class="text-slate-600">Radios de giro inadecuados para buses.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-slate-200 hover:shadow-lg transition-shadow">
+                    <span class="text-3xl">🚌</span>
+                    <h3 class="text-xl font-semibold text-slate-900 mt-3 mb-2">Transporte Público</h3>
+                    <p class="text-slate-600">Paraderos en zona de influencia directa.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN 5: PROPUESTAS -->
+        <section id="propuestas" class="content-section hidden">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Propuestas de Mejora</h2>
+            <p class="text-base text-slate-600 mb-6 max-w-3xl">
+                Comparativa de escenarios. Seleccione una opción para ver el impacto técnico.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-4 mb-8" id="propuesta-buttons">
+                <button class="prop-btn px-6 py-2 rounded-md font-medium cursor-pointer shadow-sm transition-colors duration-200 bg-sky-600 text-white" data-target="prop1">
+                    Propuesta 1: Optimización Semafórica
+                </button>
+                <button class="prop-btn px-6 py-2 rounded-md font-medium cursor-pointer shadow-sm transition-colors duration-200 bg-white text-slate-700 border border-slate-300 hover:bg-slate-50" data-target="prop2">
+                    Propuesta 2: Rediseño Geométrico
+                </button>
+            </div>
+
+            <div class="chart-container mb-8">
+                <canvas id="propuestasChart"></canvas>
+            </div>
+
+            <div id="propuesta-details" class="bg-white p-6 rounded-lg shadow-md border border-slate-200 max-w-3xl mx-auto transition-all duration-300">
+                <!-- Contenido dinámico -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // DATOS
+            const dataStore = {
+                demanda: {
+                    labels: ['Huaylas (Norte)', 'Huaylas (Sur)', 'Matellini (Este)', 'Matellini (Oeste)'],
+                    datasets: [
+                        { label: 'Giro Izquierda', data: [150, 180, 200, 150], backgroundColor: 'rgba(239, 68, 68, 0.8)' },
+                        { label: 'Recto', data: [1200, 1300, 400, 350], backgroundColor: 'rgba(59, 130, 246, 0.8)' },
+                        { label: 'Giro Derecha', data: [100, 120, 50, 100], backgroundColor: 'rgba(34, 197, 94, 0.8)' }
+                    ]
+                },
+                diagnostico: {
+                    labels: ['Huaylas (N-S) Giro Izq.', 'Matellini (E-W) Giro Izq.', 'Huaylas (S-N) Recto', 'Matellini (W-E) Recto'],
+                    datasets: [{
+                        label: 'Grado de Saturación (v/c)',
+                        data: [1.10, 1.05, 0.98, 0.95],
+                        backgroundColor: c => c.raw >= 1.0 ? 'rgba(239, 68, 68, 0.8)' : 'rgba(245, 158, 11, 0.8)',
+                        borderWidth: 0
+                    }]
+                },
+                propuestas: {
+                    labels: ['Demora Promedio (s)'],
+                    datasets: [
+                        { label: 'Actual', data: [85.4], backgroundColor: 'rgba(239, 68, 68, 0.8)' },
+                        { label: 'Propuesta 1', data: [50.2], backgroundColor: 'rgba(245, 158, 11, 0.8)' },
+                        { label: 'Propuesta 2', data: [35.1], backgroundColor: 'rgba(34, 197, 94, 0.8)' }
+                    ]
+                },
+                propuestaDetails: {
+                    prop1: {
+                        title: 'Propuesta 1: Optimización Semafórica',
+                        los: 'D',
+                        description: 'Solución de bajo costo. Ajuste de tiempos de verde y ciclo a 140s.',
+                        items: ['Nuevo Ciclo: 140s', 'Optimización de fases', 'Sin obra civil', 'Mejora moderada']
+                    },
+                    prop2: {
+                        title: 'Propuesta 2: Rediseño Geométrico',
+                        los: 'C',
+                        description: 'Solución integral recomendada. Incluye carril exclusivo y reubicación de paraderos.',
+                        items: ['Carril de giro exclusivo (N-S)', 'Mejores radios de giro', 'Paraderos reubicados', 'Señalización nueva']
+                    }
+                }
+            };
+
+            // CONFIG GRÁFICOS
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } }
+            };
+
+            // RENDERIZAR GRÁFICOS
+            new Chart(document.getElementById('demandaChart'), {
+                type: 'bar',
+                data: dataStore.demanda,
+                options: { ...commonOptions, scales: { x: { stacked: true }, y: { stacked: true } } }
+            });
+
+            new Chart(document.getElementById('diagnosticoChart'), {
+                type: 'bar',
+                data: dataStore.diagnostico,
+                options: {
+                    ...commonOptions,
+                    indexAxis: 'y',
+                    plugins: {
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line', xMin: 1.0, xMax: 1.0, borderColor: 'red', borderWidth: 2,
+                                    label: { content: 'Límite (1.0)', enabled: true }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('propuestasChart'), {
+                type: 'bar',
+                data: dataStore.propuestas,
+                options: commonOptions
+            });
+
+            // --- LÓGICA DE INTERACCIÓN SEGURA ---
+
+            // 1. NAVEGACIÓN PRINCIPAL
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const sections = document.querySelectorAll('.content-section');
+
+            // Clases para estado ACTIVO e INACTIVO
+            const activeClasses = ['bg-sky-600', 'text-white'];
+            const inactiveClasses = ['text-slate-700', 'hover:bg-sky-100', 'hover:text-sky-700', 'bg-transparent'];
+
+            function updateNavStyles(targetId) {
+                navButtons.forEach(btn => {
+                    if(btn.dataset.target === targetId) {
+                        btn.classList.remove(...inactiveClasses);
+                        btn.classList.add(...activeClasses);
+                    } else {
+                        btn.classList.remove(...activeClasses);
+                        btn.classList.add(...inactiveClasses);
+                    }
+                });
+            }
+
+            function showSection(targetId) {
+                sections.forEach(section => {
+                    if(section.id === targetId) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+            }
+
+            document.getElementById('nav-buttons').addEventListener('click', (e) => {
+                if (e.target.classList.contains('nav-btn')) {
+                    const target = e.target.dataset.target;
+                    showSection(target);
+                    updateNavStyles(target);
+                }
+            });
+
+            // 2. BOTONES DE PROPUESTAS
+            const propContainer = document.getElementById('propuesta-buttons');
+            const propButtons = document.querySelectorAll('.prop-btn');
+            const propDetails = document.getElementById('propuesta-details');
+            
+            // Clases para Propuestas (Activo vs Inactivo)
+            const propActive = ['bg-sky-600', 'text-white'];
+            const propInactive = ['bg-white', 'text-slate-700', 'border', 'border-slate-300', 'hover:bg-slate-50'];
+
+            function renderPropDetails(key) {
+                const d = dataStore.propuestaDetails[key];
+                propDetails.innerHTML = `
+                    <h3 class="text-2xl font-semibold text-slate-900 mb-3">${d.title}</h3>
+                    <div class="mb-4">
+                        <span class="text-sm font-medium text-slate-500 uppercase">Nivel de Servicio:</span>
+                        <span class="text-2xl font-bold text-sky-600 ml-2">${d.los}</span>
+                    </div>
+                    <p class="text-slate-600 mb-4">${d.description}</p>
+                    <ul class="space-y-2 text-slate-600">
+                        ${d.items.map(i => `<li class="flex items-start"><span class="text-sky-600 mr-2">✓</span>${i}</li>`).join('')}
+                    </ul>
+                `;
+            }
+
+            propContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.prop-btn');
+                if(!btn) return;
+
+                // Actualizar estilos botones
+                propButtons.forEach(b => {
+                    b.classList.remove(...propActive);
+                    b.classList.add(...propInactive);
+                });
+                btn.classList.remove(...propInactive);
+                btn.classList.add(...propActive);
+
+                // Actualizar contenido
+                renderPropDetails(btn.dataset.target);
+            });
+
+            // Inicialización
+            renderPropDetails('prop1');
+        });
+    </script>
+</body>
+</html>
